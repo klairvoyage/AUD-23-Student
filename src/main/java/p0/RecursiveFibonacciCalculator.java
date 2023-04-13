@@ -8,6 +8,9 @@ public class RecursiveFibonacciCalculator implements FibonacciCalculator {
 
     @Override
     public int get(int n) {
-        throw new UnsupportedOperationException("Not implemented yet"); //TODO H5: remove if implemented
+        //TODO H5: remove if implemented
+        //throw new UnsupportedOperationException("Not implemented yet");
+        if (n<=1) return n;
+        return get(n-1)+get(n-2);
     }
 }

@@ -8,6 +8,16 @@ public class IterativeFibonacciCalculator implements FibonacciCalculator {
 
     @Override
     public int get(int n) {
-        throw new UnsupportedOperationException("Not implemented yet"); //TODO H5: remove if implemented
+        //TODO H5: remove if implemented
+        //throw new UnsupportedOperationException("Not implemented yet");
+        int prev = 0;
+        int fibi = 1;
+        int temp;
+        for (int i=1;i<n;i++) {
+            temp = fibi;
+            fibi += prev;
+            prev = temp;
+        }
+        return fibi;
     }
 }
