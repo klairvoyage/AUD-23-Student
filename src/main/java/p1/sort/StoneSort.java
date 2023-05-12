@@ -29,7 +29,16 @@ public class StoneSort<T> implements Sort<T> {
     @Override
     public void sort(SortList<T> sortList) {
         comparator.reset();
-        throw new UnsupportedOperationException("Not implemented yet"); //TODO H2 a): remove if implemented
+        //TODO H2 a): remove if implemented
+        for (int i=sortList.getSize()-1;i>=0;i--) {
+            for (int j=sortList.getSize()-2;j>sortList.getSize()-2-i;j--) {
+                if (comparator.compare(sortList.get(j),sortList.get(j+1))>0) {
+                    T temp = sortList.get(j);
+                    sortList.set(j,sortList.get(j+1));
+                    sortList.set(j+1,temp);
+                }
+            }
+        }
     }
 
     @Override

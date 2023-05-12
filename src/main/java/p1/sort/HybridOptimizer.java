@@ -18,7 +18,22 @@ public class HybridOptimizer {
      * @param <T> the type of the elements to be sorted.
      */
     public static <T> int optimize(HybridSort<T> hybridSort, T[] array) {
-        throw new UnsupportedOperationException("Not implemented yet"); //TODO H1 e): remove if implemented
+        //TODO H1 e): remove if implemented
+        int temp = hybridSort.getK();
+        int numberOfOperations = Integer.MAX_VALUE;
+        int index = -1;
+        for(int k=0;k<array.length+1;k++) {
+            hybridSort.setK(k);
+            ArraySortList<T> yo = new ArraySortList<>(array);
+            hybridSort.sort(yo);
+            if ((yo.getReadCount()+yo.getWriteCount())<=numberOfOperations) {
+                numberOfOperations = yo.getReadCount() + yo.getWriteCount();
+                index++;
+            }
+            else break;
+        }
+        hybridSort.setK(temp);
+        return index;
     }
 
 }

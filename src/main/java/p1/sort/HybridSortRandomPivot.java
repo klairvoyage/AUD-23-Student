@@ -25,6 +25,12 @@ public class HybridSortRandomPivot<T> extends HybridSort<T> {
 
     @Override
     public int partition(SortList<T> sortList, int left, int right) {
-        throw new UnsupportedOperationException("Not implemented yet"); //TODO H1 f): remove if implemented
+        //TODO H1 f): remove if implemented
+        int randomIndex = random.nextInt(left, right+1);
+        T newPivot = sortList.get(randomIndex);
+        T temp = sortList.get(left);
+        sortList.set(left, newPivot);
+        sortList.set(randomIndex, temp);
+        return super.partition(sortList, left, right);
     }
 }

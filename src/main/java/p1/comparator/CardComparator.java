@@ -34,6 +34,20 @@ public class CardComparator implements Comparator<Card> {
      */
     @Override
     public int compare(Card o1, Card o2) {
-        throw new UnsupportedOperationException("Not implemented yet"); //TODO H1 a): remove if implemented
+        //TODO H1 a): remove if implemented
+        //if (o1==null || o2==null) throw new NullPointerException();
+        if (myComparator(o1.cardValue(), o2.cardValue())!=0) return myComparator(o1.cardValue(), o2.cardValue());
+        else return myComparator(getValue(o1.cardColor()), getValue(o2.cardColor()));
+    }
+    private int myComparator(int a, int b) {
+        return a<b ? -1 : a>b ? 1 : 0;
+    }
+    private int getValue(CardColor cardColor) {
+        return switch (cardColor) {
+            case DIAMONDS -> 1;
+            case HEARTS -> 2;
+            case SPADES -> 3;
+            case CLUBS -> 4;
+        };
     }
 }

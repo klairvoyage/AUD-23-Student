@@ -76,7 +76,15 @@ public class HybridSort<T> implements Sort<T> {
      * @param right The rightmost index of the list to be sorted.
      */
     public void quickSort(SortList<T> sortList, int left, int right) {
-        throw new UnsupportedOperationException("Not implemented yet"); //TODO H1 d): remove if implemented
+        //TODO H1 d): remove if implemented
+        if (left<right) {
+            if ((right-left+1)<getK()) insertionSort(sortList, left, right);
+            else {
+                int p = partition(sortList, left, right);
+                quickSort(sortList, left, p);
+                quickSort(sortList, p+1, right);
+            }
+        }
     }
 
     /**
@@ -92,7 +100,24 @@ public class HybridSort<T> implements Sort<T> {
      * and all elements to the right of the index are greater than or equal to the pivot.
      */
     public int partition(SortList<T> sortList, int left, int right) {
-        throw new UnsupportedOperationException("Not implemented yet"); //TODO H1 d): remove if implemented
+        //TODO H1 d): remove if implemented
+        T pivot = sortList.get(left);
+        int pl = left-1;
+        int pr = right+1;
+        int p = -1;
+        while (pl<pr) {
+            do pl++;
+            while (comparator.compare(sortList.get(pl),pivot)<0);
+            do pr--;
+            while (comparator.compare(sortList.get(pr),pivot)>0);
+            if (pl<pr) {
+                T temp = sortList.get(pr);
+                sortList.set(pr,sortList.get(pl));
+                sortList.set(pl,temp);
+            }
+            p = pr;
+        }
+        return p;
     }
 
     /**
@@ -105,7 +130,18 @@ public class HybridSort<T> implements Sort<T> {
      * @param right The rightmost index of the list to be sorted.
      */
     public void insertionSort(SortList<T> sortList, int left, int right) {
-        throw new UnsupportedOperationException("Not implemented yet"); //TODO H1 c): remove if implemented
+        //TODO H1 c): remove if implemented
+        T key;
+        int j;
+        for (int i=left+1;i<=right;i++) {
+            key = sortList.get(i);
+            j = i-1;
+            while (j>=left && comparator.compare(sortList.get(j),key)>0) {
+                sortList.set(j+1,sortList.get(j));
+                j--;
+            }
+            sortList.set(j+1,key);
+        }
     }
 
 }
