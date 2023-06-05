@@ -39,6 +39,8 @@ public class BtrfsFile {
      */
     private int size;
 
+    private StorageView storageView;
+
     /**
      * Creates a new {@link BtrfsFile} instance.
      *
@@ -117,8 +119,69 @@ public class BtrfsFile {
      * @return a {@link StorageView} containing the data that was read.
      */
     private StorageView read(int start, int length, BtrfsNode node, int cumulativeLength, int lengthRead) {
+        //TODO H1: remove if implemented
+        storageView = new EmptyStorageView(storage);
+        storageView.plus(readcursion(start, length, node, cumulativeLength, lengthRead, 0));
+    }
 
-        throw new UnsupportedOperationException("Not implemented yet"); //TODO H1: remove if implemented
+    private StorageView readcursion(int start, int length, BtrfsNode node, int cumulativeLength, int lengthRead, int rootPointer) {
+        if (rootPointer<root.size) {
+            //node bottom right left
+        } else {
+
+        }
+        //read(0, 3, root, 0, 0) =
+
+
+
+        // DIES ALLES BIS ROOT:KEYS:LENGTH-2 DANN EINMAL UNTEN RECHTS
+
+        //von 0 bis i
+        int cumLength = node.childLengths[rootPointer]; // = 6 // = 0
+        if (start<cumLength) { 6<8
+            if (start+length<cumLength) storageView.plus(readcursion(start, length, node.children[rootPointer], cumulativeLength, lengthRead, rootPointer));
+            else {
+                storageView.plus(readcursion(start, length, node.children[rootPointer], cumulativeLength, lengthRead, rootPointer));
+                rootPointer++;
+                //rechts
+            }
+        }
+        else {
+            // WENN EMPTY QUIT
+            cumulativeLength += cumLength; // = 0
+            //IS THIS NODE A STARTINBG POINT
+            //von 0 bis i
+            for (int i=0;i<node.size;i++) {
+
+            }
+            if (start<cumulativeLength+node.keys[rootPointer].length()) { // FOUND STARTING POINT
+                //bis wohin das Intervall gelesen wird (Minimum: Wortlänge vs. Intervallende)
+                int intervalEnd = (node.keys[rootPointer].length() < length) ? node.keys[rootPointer].length() : length;
+                storageView.plus(storage.createView(new Interval(node.keys[rootPointer].start(), intervalEnd)));
+                rootPointer++;
+            } else storageView.plus(read(start, length, node, cumulativeLength, lengthRead));
+        }
+
+
+
+
+
+        root.childLengths.length = root.size+1;
+        if (start>666 || length==0) return new EmptyStorageView(storage);
+
+
+        while (node!=null) {
+            int i = 0;
+
+            while (i<node.size && node.keys[i].start()<5) i++;
+
+            while (i<node.size && node.keys[i].start()<5) i++;
+            if (i<node.size && node.keys[i].start()==5) {
+                if (node.keys[i].length()==1) return ne
+            } else {
+                if ()
+            }
+        }
     }
 
     /**
