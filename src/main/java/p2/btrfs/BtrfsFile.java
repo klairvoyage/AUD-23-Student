@@ -121,6 +121,14 @@ public class BtrfsFile {
     private StorageView read(int start, int length, BtrfsNode node, int cumulativeLength, int lengthRead) {
         //TODO H1: remove if implemented
         storageView = new EmptyStorageView(storage);
+
+        int currentNodeDegree = node.degree;
+        int currentNodeMaxNumberOfKeys = 2*node.degree-1;
+        int currentNodeNumberOfKeys = node.size;
+        Interval[] currentNodeKeys = node.keys;
+        BtrfsNode[] currentNodeChildren = node.children;
+        int[] currentNodeChildrenLength = node.childLengths;
+
         storageView.plus(readcursion(start, length, node, cumulativeLength, lengthRead, 0));
     }
 
@@ -130,11 +138,53 @@ public class BtrfsFile {
         } else {
 
         }
-        //read(0, 3, root, 0, 0) =
-
-
-
         // DIES ALLES BIS ROOT:KEYS:LENGTH-2 DANN EINMAL UNTEN RECHTS
+
+
+        //read(7, 3, root, 0, 0) =
+
+
+        //ISLEAF DANN NUR KEYS
+        //if (lengthRead==length) System.out.println("done");
+
+
+
+        if (lengthRead<length && cumulativeLength>/*=*/start)
+        //checks if word is in left child node
+        if ((start+lengthRead)<(node.childLengths[0]+cumulativeLength)) {
+            /*
+            Ausgabe in left child node
+             */
+        } else {
+            //increments cumulativeLength by number of blocks skipped in left child node
+            cumulativeLength += node.childLengths[0];
+
+            //checks if words is in same node
+            if ((start+lengthRead)<(node.keys[0].length()+cumulativeLength)) {
+                //Ausgabe in same node
+                int shift = (start+lengthRead)-cumulativeLength;
+                int potentialInterval = node.keys[0].length()-((start+lengthRead)-cumulativeLength);
+                int leftToBeRead = length - lengthRead;
+                int subIntervalLength = (leftToBeRead < potentialInterval) ? leftToBeRead : potentialInterval;
+                storageView.plus(storage.createView(new Interval(node.keys[0].start()+shift, subIntervalLength)));
+                cumulativeLength += node.keys[0].length();
+                lengthRead += subIntervalLength;
+                //checks if word is done
+                if (lengthRead==length) return storageView;
+                else {
+                    //right child node
+                }
+            } else {
+                /*
+                rekursiv neu, mit rootPointer verschoben? + cum erhöht
+                 */
+            }
+        }
+
+
+
+
+
 
         //von 0 bis i
         int cumLength = node.childLengths[rootPointer]; // = 6 // = 0
@@ -163,25 +213,8 @@ public class BtrfsFile {
         }
 
 
-
-
-
         root.childLengths.length = root.size+1;
         if (start>666 || length==0) return new EmptyStorageView(storage);
-
-
-        while (node!=null) {
-            int i = 0;
-
-            while (i<node.size && node.keys[i].start()<5) i++;
-
-            while (i<node.size && node.keys[i].start()<5) i++;
-            if (i<node.size && node.keys[i].start()==5) {
-                if (node.keys[i].length()==1) return ne
-            } else {
-                if ()
-            }
-        }
     }
 
     /**
