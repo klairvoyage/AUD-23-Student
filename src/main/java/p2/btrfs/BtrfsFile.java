@@ -39,6 +39,10 @@ public class BtrfsFile {
      */
     private int size;
 
+    private static int cum;
+
+    private static int red;
+
     /**
      * Creates a new {@link BtrfsFile} instance.
      *
@@ -118,23 +122,25 @@ public class BtrfsFile {
      */
     private StorageView read(int start, int length, BtrfsNode node, int cumulativeLength, int lengthRead) {
         //TODO H1: remove if implemented
-        StorageView storageView = new EmptyStorageView(storage);
+        StringBuilder storageView = new StringBuilder(); //replaced "StorageView storageView = new EmptyStorageView(storage);"
 
-        int numberOfBlocks = 0;
-        for (int i=0;i<node.childLengths.length;i++) numberOfBlocks += node.childLengths[i];
-        //CHECK THIS FOR TREE WITH JUST ROOT
-        if (start>=numberOfBlocks|| length<=0 || length>(numberOfBlocks-start) || cumulativeLength<0 ||
-            cumulativeLength>start || lengthRead>=length || lengthRead>numberOfBlocks || lengthRead>cumulativeLength)
-            return storageView;
+        if (start<0 || length<=0 || cumulativeLength<0 || lengthRead>=length || lengthRead>cumulativeLength)
+            return storageView.toString();
 
         for (int i=0;i<node.size;i++) {
             if (node.children[i]!=null) { //WHAT IF NULL/.ISLEAF
                 //recursive call if the interval is somewhat contained in child node
                 if ((start+lengthRead)<(node.childLengths[i]+cumulativeLength)) {
-                    storageView = storageView.plus(read(start, length, node.children[i], cumulativeLength, lengthRead));
+                    storageView.append(read(start, length, node.children[i], cumulativeLength, lengthRead));
+                    cumulativeLength = cum;
+                    lengthRead = red;
+                    if (lengthRead==length) break;
                 }
                 //increments cumulativeLength by number of blocks in child node, if skipped
-                else cumulativeLength += node.childLengths[i];
+                else {
+                    cumulativeLength += node.childLengths[i];
+                    cum = cumulativeLength;
+                }
             }
             //reads interval in node, if somewhat contained in it
             if ((start+lengthRead)<(node.keys[i].length()+cumulativeLength)) {
@@ -143,16 +149,23 @@ public class BtrfsFile {
                 int potentialInterval = key.length()-((start+lengthRead)-cumulativeLength);
                 int leftToBeRead = length - lengthRead;
                 int subIntLength = (leftToBeRead < potentialInterval) ? leftToBeRead : potentialInterval;
-                storageView = storageView.plus(storage.createView(new Interval(key.start()+shift, subIntLength)));
+                String s = "("+key.start()+"+"+shift+",length: "+subIntLength+")\n";
+                storageView.append(s);
                 cumulativeLength += key.length();
+                cum = cumulativeLength;
                 lengthRead += subIntLength;
+                red = lengthRead;
+                if (lengthRead==length) break;
+            } else {
+                cumulativeLength += node.keys[i].length();
+                cum = cumulativeLength;
             }
         }
         if (node.children[node.size]!=null) {
-            storageView = storageView.plus(read(start, length, node.children[node.size], cumulativeLength, lengthRead));
+            storageView.append(read(start, length, node.children[node.size], cumulativeLength, lengthRead));
         }
 
-        return storageView; //CHECK READCURSION (GIT)
+        return storageView.toString(); //CHECK READCURSION (GIT)
     }
 
     /**
