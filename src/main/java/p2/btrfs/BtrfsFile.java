@@ -122,50 +122,48 @@ public class BtrfsFile {
      */
     private StorageView read(int start, int length, BtrfsNode node, int cumulativeLength, int lengthRead) {
         //TODO H1: remove if implemented
-        StringBuilder storageView = new StringBuilder(); //replaced "StorageView storageView = new EmptyStorageView(storage);"
+        StorageView storageView = new EmptyStorageView(storage);
 
         if (start<0 || length<=0 || cumulativeLength<0 || lengthRead>=length || lengthRead>cumulativeLength)
-            return storageView.toString();
+            return storageView;
 
         for (int i=0;i<node.size;i++) {
-            if (node.children[i]!=null) { //WHAT IF NULL/.ISLEAF
-                //recursive call if the interval is somewhat contained in child node
+            if (node.children[i]!=null) {
+                //checks for interval in child node, if (partly) contained in it
                 if ((start+lengthRead)<(node.childLengths[i]+cumulativeLength)) {
-                    storageView.append(read(start, length, node.children[i], cumulativeLength, lengthRead));
+                    storageView = storageView.plus(read(start, length, node.children[i], cumulativeLength, lengthRead));
                     cumulativeLength = cum;
                     lengthRead = red;
                     if (lengthRead==length) break;
                 }
-                //increments cumulativeLength by number of blocks in child node, if skipped
-                else {
+                else { //skipped blocks in child node
                     cumulativeLength += node.childLengths[i];
                     cum = cumulativeLength;
                 }
             }
-            //reads interval in node, if somewhat contained in it
+            //checks for interval in node, if (partly) contained in it
             if ((start+lengthRead)<(node.keys[i].length()+cumulativeLength)) {
                 Interval key = node.keys[i];
                 int shift = (start+lengthRead)-cumulativeLength;
                 int potentialInterval = key.length()-((start+lengthRead)-cumulativeLength);
                 int leftToBeRead = length - lengthRead;
                 int subIntLength = (leftToBeRead < potentialInterval) ? leftToBeRead : potentialInterval;
-                String s = "("+key.start()+"+"+shift+",length: "+subIntLength+")\n";
-                storageView.append(s);
+                storageView = storageView.plus(storage.createView(new Interval(key.start()+shift, subIntLength)));
                 cumulativeLength += key.length();
                 cum = cumulativeLength;
                 lengthRead += subIntLength;
                 red = lengthRead;
                 if (lengthRead==length) break;
-            } else {
+            } else { //skipped blocks in node
                 cumulativeLength += node.keys[i].length();
                 cum = cumulativeLength;
             }
         }
         if (node.children[node.size]!=null) {
-            storageView.append(read(start, length, node.children[node.size], cumulativeLength, lengthRead));
+            storageView = storageView.plus(read(start, length, node.children[node.size], cumulativeLength, lengthRead));
         }
 
-        return storageView.toString(); //CHECK READCURSION (GIT)
+        return storageView;
     }
 
     /**
