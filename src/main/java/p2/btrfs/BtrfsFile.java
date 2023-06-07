@@ -39,8 +39,6 @@ public class BtrfsFile {
      */
     private int size;
 
-    private StorageView storageView;
-
     /**
      * Creates a new {@link BtrfsFile} instance.
      *
@@ -120,101 +118,41 @@ public class BtrfsFile {
      */
     private StorageView read(int start, int length, BtrfsNode node, int cumulativeLength, int lengthRead) {
         //TODO H1: remove if implemented
-        storageView = new EmptyStorageView(storage);
+        StorageView storageView = new EmptyStorageView(storage);
 
-        int currentNodeDegree = node.degree;
-        int currentNodeMaxNumberOfKeys = 2*node.degree-1;
-        int currentNodeNumberOfKeys = node.size;
-        Interval[] currentNodeKeys = node.keys;
-        BtrfsNode[] currentNodeChildren = node.children;
-        int[] currentNodeChildrenLength = node.childLengths;
+        int numberOfBlocks = 0;
+        for (int i=0;i<node.childLengths.length;i++) numberOfBlocks += node.childLengths[i];
+        //CHECK THIS FOR TREE WITH JUST ROOT
+        if (start>=numberOfBlocks|| length<=0 || length>(numberOfBlocks-start) || cumulativeLength<0 ||
+            cumulativeLength>start || lengthRead>=length || lengthRead>numberOfBlocks || lengthRead>cumulativeLength)
+            return storageView;
 
-        storageView.plus(readcursion(start, length, node, cumulativeLength, lengthRead, 0));
-    }
-
-    private StorageView readcursion(int start, int length, BtrfsNode node, int cumulativeLength, int lengthRead, int rootPointer) {
-        if (rootPointer<root.size) {
-            //node bottom right left
-        } else {
-
-        }
-        // DIES ALLES BIS ROOT:KEYS:LENGTH-2 DANN EINMAL UNTEN RECHTS
-
-
-        //read(7, 3, root, 0, 0) =
-
-
-        //ISLEAF DANN NUR KEYS
-        //if (lengthRead==length) System.out.println("done");
-
-
-
-        if (lengthRead<length && cumulativeLength>/*=*/start)
-        //checks if word is in left child node
-        if ((start+lengthRead)<(node.childLengths[0]+cumulativeLength)) {
-            /*
-            Ausgabe in left child node
-             */
-        } else {
-            //increments cumulativeLength by number of blocks skipped in left child node
-            cumulativeLength += node.childLengths[0];
-
-            //checks if words is in same node
-            if ((start+lengthRead)<(node.keys[0].length()+cumulativeLength)) {
-                //Ausgabe in same node
-                int shift = (start+lengthRead)-cumulativeLength;
-                int potentialInterval = node.keys[0].length()-((start+lengthRead)-cumulativeLength);
-                int leftToBeRead = length - lengthRead;
-                int subIntervalLength = (leftToBeRead < potentialInterval) ? leftToBeRead : potentialInterval;
-                storageView.plus(storage.createView(new Interval(node.keys[0].start()+shift, subIntervalLength)));
-                cumulativeLength += node.keys[0].length();
-                lengthRead += subIntervalLength;
-                //checks if word is done
-                if (lengthRead==length) return storageView;
-                else {
-                    //right child node
+        for (int i=0;i<node.size;i++) {
+            if (node.children[i]!=null) { //WHAT IF NULL/.ISLEAF
+                //recursive call if the interval is somewhat contained in child node
+                if ((start+lengthRead)<(node.childLengths[i]+cumulativeLength)) {
+                    storageView = storageView.plus(read(start, length, node.children[i], cumulativeLength, lengthRead));
                 }
-            } else {
-                /*
-                rekursiv neu, mit rootPointer verschoben? + cum erhöht
-                 */
+                //increments cumulativeLength by number of blocks in child node, if skipped
+                else cumulativeLength += node.childLengths[i];
+            }
+            //reads interval in node, if somewhat contained in it
+            if ((start+lengthRead)<(node.keys[i].length()+cumulativeLength)) {
+                Interval key = node.keys[i];
+                int shift = (start+lengthRead)-cumulativeLength;
+                int potentialInterval = key.length()-((start+lengthRead)-cumulativeLength);
+                int leftToBeRead = length - lengthRead;
+                int subIntLength = (leftToBeRead < potentialInterval) ? leftToBeRead : potentialInterval;
+                storageView = storageView.plus(storage.createView(new Interval(key.start()+shift, subIntLength)));
+                cumulativeLength += key.length();
+                lengthRead += subIntLength;
             }
         }
-
-
-
-
-
-
-        //von 0 bis i
-        int cumLength = node.childLengths[rootPointer]; // = 6 // = 0
-        if (start<cumLength) { 6<8
-            if (start+length<cumLength) storageView.plus(readcursion(start, length, node.children[rootPointer], cumulativeLength, lengthRead, rootPointer));
-            else {
-                storageView.plus(readcursion(start, length, node.children[rootPointer], cumulativeLength, lengthRead, rootPointer));
-                rootPointer++;
-                //rechts
-            }
-        }
-        else {
-            // WENN EMPTY QUIT
-            cumulativeLength += cumLength; // = 0
-            //IS THIS NODE A STARTINBG POINT
-            //von 0 bis i
-            for (int i=0;i<node.size;i++) {
-
-            }
-            if (start<cumulativeLength+node.keys[rootPointer].length()) { // FOUND STARTING POINT
-                //bis wohin das Intervall gelesen wird (Minimum: Wortlänge vs. Intervallende)
-                int intervalEnd = (node.keys[rootPointer].length() < length) ? node.keys[rootPointer].length() : length;
-                storageView.plus(storage.createView(new Interval(node.keys[rootPointer].start(), intervalEnd)));
-                rootPointer++;
-            } else storageView.plus(read(start, length, node, cumulativeLength, lengthRead));
+        if (node.children[node.size]!=null) {
+            storageView = storageView.plus(read(start, length, node.children[node.size], cumulativeLength, lengthRead));
         }
 
-
-        root.childLengths.length = root.size+1;
-        if (start>666 || length==0) return new EmptyStorageView(storage);
+        return storageView; //CHECK READCURSION (GIT)
     }
 
     /**
