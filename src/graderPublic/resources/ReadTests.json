@@ -1,0 +1,20 @@
+{
+  "testMergeRight": [
+    {
+      "tree": [["A", "B"], "C", ["D", "E"], "F", ["G", "H"]],
+      "degree": 3,
+      "parentIndex": 1,
+      "childIndex": 1,
+      "expected": ["A", "C", "B"]
+    },
+    {
+      "tree": [["A", "B"], "C", ["D", "E"], "F", ["G", "H", "I", "J", "K"]],
+      "degree": 3,
+      "parentIndex": 0,
+      "childIndex": 0,
+      "expected": true
+    }
+
+
+  ]
+}
