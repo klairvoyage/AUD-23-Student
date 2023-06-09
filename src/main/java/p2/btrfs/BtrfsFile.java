@@ -509,8 +509,21 @@ public class BtrfsFile {
      * @return the removed key.
      */
     private Interval removeRightMostKey(IndexedNodeLinkedList indexedNode) {
-
-        throw new UnsupportedOperationException("Not implemented yet"); //TODO H3 d): remove if implemented
+        //TODO H3 d): remove if implemented
+        BtrfsNode node = indexedNode.node;
+        while (!indexedNode.node.isLeaf()) {
+            indexedNode = new IndexedNodeLinkedList(indexedNode, indexedNode.node.children[indexedNode.node.size],
+                indexedNode.index);
+        }
+        Interval removedKey = indexedNode.node.keys[indexedNode.node.size-1];
+        int removedLength = indexedNode.node.keys[indexedNode.node.size-1].length();
+        indexedNode.node.size--;
+        if (indexedNode.node.size<degree-1) indexedNode.parent.node.children[indexedNode.parent.node.size] = null;
+        while (!node.isLeaf()) {
+            node.childLengths[node.size] -= removedLength;
+            node = node.children[node.size];
+        }
+        return removedKey;
     }
 
     /**
@@ -521,8 +534,21 @@ public class BtrfsFile {
      * @return the removed key.
      */
     private Interval removeLeftMostKey(IndexedNodeLinkedList indexedNode) {
-
-        throw new UnsupportedOperationException("Not implemented yet"); //TODO H3 d): remove if implemented
+        //TODO H3 d): remove if implemented
+        BtrfsNode node = indexedNode.node;
+        while (!indexedNode.node.isLeaf()) {
+            indexedNode = new IndexedNodeLinkedList(indexedNode, indexedNode.node.children[0], indexedNode.index);
+        }
+        Interval removedKey = indexedNode.node.keys[0];
+        int removedLength = indexedNode.node.keys[0].length();
+        for (int i=0;i<indexedNode.node.size-1;i++) indexedNode.node.keys[i] = indexedNode.node.keys[i+1];
+        indexedNode.node.size--;
+        if (indexedNode.node.size<degree-1) indexedNode.parent.node.children[0] = null;
+        while (!node.isLeaf()) {
+            node.childLengths[0] -= removedLength;
+            node = node.children[0];
+        }
+        return removedKey;
     }
 
     /**
