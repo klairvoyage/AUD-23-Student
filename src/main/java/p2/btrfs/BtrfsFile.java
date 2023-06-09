@@ -123,10 +123,8 @@ public class BtrfsFile {
     private StorageView read(int start, int length, BtrfsNode node, int cumulativeLength, int lengthRead) {
         //TODO H1: remove if implemented
         StorageView storageView = new EmptyStorageView(storage);
-
         if (start<0 || length<=0 || cumulativeLength<0 || lengthRead>=length || lengthRead>cumulativeLength)
-            return storageView;
-
+            return storageView; //fail-safe
         for (int i=0;i<node.size;i++) {
             if (node.children[i]!=null) {
                 //checks for interval in child node, if (partly) contained in it
@@ -159,10 +157,9 @@ public class BtrfsFile {
                 cum = cumulativeLength;
             }
         }
-        if (node.children[node.size]!=null) {
+        if (node.children[node.size]!=null) { //last potential child node (bottom right) not covered by loop
             storageView = storageView.plus(read(start, length, node.children[node.size], cumulativeLength, lengthRead));
         }
-
         return storageView;
     }
 
@@ -577,8 +574,38 @@ public class BtrfsFile {
      * @param indexedNode the node to rotate to.
      */
     private void rotateFromRightSibling(IndexedNodeLinkedList indexedNode) {
-
-        throw new UnsupportedOperationException("Not implemented yet"); //TODO H3 a): remove if implemented
+        //TODO H3 a): remove if implemented
+        IndexedNodeLinkedList parent = indexedNode.parent;
+        BtrfsNode node = indexedNode.node;
+        int childIndex = indexedNode.index;
+        BtrfsNode parentNode = parent.node;
+        int parentIndex = parent.index;
+        BtrfsNode siblingNode = parentNode.children[parentIndex+1];
+        if (node.isFull()) System.out.println("error: node already full");
+        else if (siblingNode.size-1<degree-1) System.out.println("error: right sibling node boutta be empty");
+        else { //PARENTINDEX=3 IMPOSSIBLE BECAUSE ROTATERIGHT CAN'T BE "THAT RIGHT"
+            //if (node.keys[childIndex+1]!=null) childIndex = node.size-1;
+            node.keys[childIndex+1] = parentNode.keys[parentIndex]; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            node.size++;
+            parentNode.childLengths[parentIndex] += parentNode.keys[parentIndex].length();
+            parentNode.keys[parentIndex] = siblingNode.keys[0];
+            for (int i=0;i<siblingNode.size-1;i++) siblingNode.keys[i] = siblingNode.keys[i+1];
+            siblingNode.keys[siblingNode.size-1] = null;
+            siblingNode.size--;
+            parentNode.childLengths[parentIndex+1] -= parentNode.keys[parentIndex].length();
+            if (!siblingNode.isLeaf()) {
+                node.children[childIndex+2] = siblingNode.children[0]; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                int movingNodeLength = siblingNode.childLengths[0];
+                parentNode.childLengths[parentIndex] += movingNodeLength;
+                for (int i=0;i<siblingNode.size;i++) {
+                    siblingNode.children[i] = siblingNode.children[i+1];
+                    siblingNode.childLengths[i] = siblingNode.childLengths[i+1];
+                }
+                siblingNode.children[siblingNode.size] = null;
+                siblingNode.childLengths[siblingNode.size] = 0;
+                parentNode.childLengths[parentIndex+1] -= movingNodeLength;
+            }
+        }
     }
 
     /**
