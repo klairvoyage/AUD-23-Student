@@ -134,7 +134,7 @@ public class BtrfsFile {
                     lengthRead = red;
                     if (lengthRead==length) break;
                 }
-                else { //skipped blocks in child node
+                else { //counts skipped blocks in child node
                     cumulativeLength += node.childLengths[i];
                     cum = cumulativeLength;
                 }
@@ -152,7 +152,7 @@ public class BtrfsFile {
                 lengthRead += subIntLength;
                 red = lengthRead;
                 if (lengthRead==length) break;
-            } else { //skipped blocks in node
+            } else { //counts skipped blocks in node
                 cumulativeLength += node.keys[i].length();
                 cum = cumulativeLength;
             }
@@ -575,36 +575,36 @@ public class BtrfsFile {
      */
     private void rotateFromRightSibling(IndexedNodeLinkedList indexedNode) {
         //TODO H3 a): remove if implemented
-        IndexedNodeLinkedList parent = indexedNode.parent;
+        //to keep it clean
         BtrfsNode node = indexedNode.node;
-        int childIndex = indexedNode.index;
-        BtrfsNode parentNode = parent.node;
-        int parentIndex = parent.index;
+        BtrfsNode parentNode = indexedNode.parent.node;
+        int parentIndex = indexedNode.parent.index;
         BtrfsNode siblingNode = parentNode.children[parentIndex+1];
+        //edge cases just in case
         if (node.isFull()) System.out.println("error: node already full");
         else if (siblingNode.size-1<degree-1) System.out.println("error: right sibling node boutta be empty");
-        else { //PARENTINDEX=3 IMPOSSIBLE BECAUSE ROTATERIGHT CAN'T BE "THAT RIGHT"
-            //if (node.keys[childIndex+1]!=null) childIndex = node.size-1;
-            node.keys[childIndex+1] = parentNode.keys[parentIndex]; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        else {
+            //interval: parent node -> base node
+            node.keys[node.size] = parentNode.keys[parentIndex];
             node.size++;
             parentNode.childLengths[parentIndex] += parentNode.keys[parentIndex].length();
+            //if sibling node is not a leaf... (sibling node -> base node)
+            node.children[node.size] = siblingNode.children[0];
+            node.childLengths[node.size] = siblingNode.childLengths[0];
+            parentNode.childLengths[parentIndex] += siblingNode.childLengths[0];
+            parentNode.childLengths[parentIndex+1] -= siblingNode.childLengths[0];
+            //interval: sibling node -> parent node
             parentNode.keys[parentIndex] = siblingNode.keys[0];
+            parentNode.childLengths[parentIndex+1] -= siblingNode.keys[0].length();
             for (int i=0;i<siblingNode.size-1;i++) siblingNode.keys[i] = siblingNode.keys[i+1];
             siblingNode.keys[siblingNode.size-1] = null;
-            siblingNode.size--;
-            parentNode.childLengths[parentIndex+1] -= parentNode.keys[parentIndex].length();
-            if (!siblingNode.isLeaf()) {
-                node.children[childIndex+2] = siblingNode.children[0]; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                int movingNodeLength = siblingNode.childLengths[0];
-                parentNode.childLengths[parentIndex] += movingNodeLength;
-                for (int i=0;i<siblingNode.size;i++) {
-                    siblingNode.children[i] = siblingNode.children[i+1];
-                    siblingNode.childLengths[i] = siblingNode.childLengths[i+1];
-                }
-                siblingNode.children[siblingNode.size] = null;
-                siblingNode.childLengths[siblingNode.size] = 0;
-                parentNode.childLengths[parentIndex+1] -= movingNodeLength;
+            for (int i=0;i<siblingNode.size;i++) {
+                siblingNode.children[i] = siblingNode.children[i+1];
+                siblingNode.childLengths[i] = siblingNode.childLengths[i+1];
             }
+            siblingNode.children[siblingNode.size] = null;
+            siblingNode.childLengths[siblingNode.size] = 0;
+            siblingNode.size--;
         }
     }
 
