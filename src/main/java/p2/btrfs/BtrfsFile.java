@@ -564,8 +564,37 @@ public class BtrfsFile {
      * @param indexedNode the node to rotate to.
      */
     private void rotateFromLeftSibling(IndexedNodeLinkedList indexedNode) {
+        //TODO H3 a): remove if implemented
+        //to keep it clean
+        BtrfsNode node = indexedNode.node;
+        BtrfsNode parentNode = indexedNode.parent.node;
+        int parentIndex = indexedNode.parent.index;
+        BtrfsNode siblingNode = parentNode.children[parentIndex-1];
+        //edge cases just in case
+        if (node.isFull()) System.out.println("error: node already full");
+        else if (siblingNode.size-1<degree-1) System.out.println("error: right sibling node boutta be empty");
+        else {
+            for (int i=node.size;i>0;i--) node.keys[i] = node.keys[i-1];
+            for (int i=node.size+1;i>0;i--) {
+                node.children[i] = node.children[i-1];
+                node.childLengths[i] = node.childLengths[i-1];
+            }
+            node.size++;
+            indexedNode.index++;
 
-        throw new UnsupportedOperationException("Not implemented yet"); //TODO H3 a): remove if implemented
+            node.keys[0] = parentNode.keys[parentIndex-1];
+            node.children[0] = siblingNode.children[siblingNode.size];
+            node.childLengths[0] = siblingNode.childLengths[siblingNode.size];
+
+            parentNode.keys[parentIndex-1] = siblingNode.keys[siblingNode.size-1];
+            parentNode.childLengths[parentIndex] += (node.keys[0].length() + node.childLengths[0]);
+
+            siblingNode.keys[siblingNode.size-1] = null;
+            siblingNode.children[siblingNode.size] = null;
+            siblingNode.childLengths[siblingNode.size] = 0;
+            siblingNode.size--;
+            parentNode.childLengths[parentIndex-1] -= (node.childLengths[0] + parentNode.keys[parentIndex-1].length());
+        }
     }
 
     /**
@@ -593,15 +622,15 @@ public class BtrfsFile {
             node.childLengths[node.size] = siblingNode.childLengths[0];
             parentNode.childLengths[parentIndex] += siblingNode.childLengths[0];
             parentNode.childLengths[parentIndex+1] -= siblingNode.childLengths[0];
+            for (int i=0;i<siblingNode.size;i++) {
+                siblingNode.children[i] = siblingNode.children[i+1];
+                siblingNode.childLengths[i] = siblingNode.childLengths[i+1];
+            }
             //interval: sibling node -> parent node
             parentNode.keys[parentIndex] = siblingNode.keys[0];
             parentNode.childLengths[parentIndex+1] -= siblingNode.keys[0].length();
             for (int i=0;i<siblingNode.size-1;i++) siblingNode.keys[i] = siblingNode.keys[i+1];
             siblingNode.keys[siblingNode.size-1] = null;
-            for (int i=0;i<siblingNode.size;i++) {
-                siblingNode.children[i] = siblingNode.children[i+1];
-                siblingNode.childLengths[i] = siblingNode.childLengths[i+1];
-            }
             siblingNode.children[siblingNode.size] = null;
             siblingNode.childLengths[siblingNode.size] = 0;
             siblingNode.size--;
