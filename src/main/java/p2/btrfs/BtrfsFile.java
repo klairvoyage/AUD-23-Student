@@ -237,8 +237,35 @@ public class BtrfsFile {
      * @see IndexedNodeLinkedList
      */
     private void split(IndexedNodeLinkedList indexedNode) {
-
-        throw new UnsupportedOperationException("Not implemented yet"); //TODO H2 a): remove if implemented
+        //TODO H2 a): remove if implemented
+        BtrfsNode node = indexedNode.node;
+        int nodeIndex = indexedNode.index;
+        BtrfsNode parentNode = indexedNode.parent.node;
+        int parentIndex = indexedNode.parent.index;
+        if (parentNode.isFull()) split(indexedNode.parent);
+        for (int i=parentNode.size-1;i>parentIndex;i++) {
+            parentNode.keys[i] = parentNode.keys[i-1];
+            parentNode.children[i+1] = parentNode.children[i];
+            parentNode.childLengths[i+1] = parentNode.childLengths[i];
+        }
+        BtrfsNode newNode = new BtrfsNode(degree);
+        int index = 0;
+        for (int i=nodeIndex;i<node.size;i++) {
+            newNode.keys[index] = node.keys[i];
+            node.keys[i] = null;
+            newNode.children[index] = node.children[i];
+            node.children[i] = null;
+            newNode.childLengths[index] = node.childLengths[i];
+            node.childLengths[i] = 0;
+            index++;
+        }
+        newNode.children[index] = node.children[node.size];
+        node.children[node.size] = null;
+        newNode.childLengths[index] = node.childLengths[node.size];
+        node.childLengths[node.size] = 0;
+        parentNode.children[1] = newNode;
+        parentNode.keys[0] = node.keys[node.size/2];
+        node.size--;
     }
 
     /**
@@ -510,18 +537,15 @@ public class BtrfsFile {
      */
     private Interval removeRightMostKey(IndexedNodeLinkedList indexedNode) {
         //TODO H3 d): remove if implemented
-        BtrfsNode node = indexedNode.node;
-        while (!indexedNode.node.isLeaf()) {
-            indexedNode = new IndexedNodeLinkedList(indexedNode, indexedNode.node.children[indexedNode.node.size],
-                indexedNode.index);
-        }
-        Interval removedKey = indexedNode.node.keys[indexedNode.node.size-1];
-        int removedLength = indexedNode.node.keys[indexedNode.node.size-1].length();
-        indexedNode.node.size--;
-        if (indexedNode.node.size<degree-1) indexedNode.parent.node.children[indexedNode.parent.node.size] = null;
-        while (!node.isLeaf()) {
-            node.childLengths[node.size] -= removedLength;
-            node = node.children[node.size];
+        BtrfsNode currentNode = indexedNode.node;
+        while (!currentNode.isLeaf()) currentNode = currentNode.children[currentNode.size];
+        Interval removedKey = currentNode.keys[currentNode.size-1];
+        int removedLength = currentNode.keys[currentNode.size-1].length();
+        currentNode.size--;
+        currentNode = indexedNode.node;
+        while (!currentNode.isLeaf()) {
+            currentNode.childLengths[currentNode.size] -= removedLength;
+            currentNode = currentNode.children[currentNode.size];
         }
         return removedKey;
     }
@@ -535,18 +559,16 @@ public class BtrfsFile {
      */
     private Interval removeLeftMostKey(IndexedNodeLinkedList indexedNode) {
         //TODO H3 d): remove if implemented
-        BtrfsNode node = indexedNode.node;
-        while (!indexedNode.node.isLeaf()) {
-            indexedNode = new IndexedNodeLinkedList(indexedNode, indexedNode.node.children[0], indexedNode.index);
-        }
-        Interval removedKey = indexedNode.node.keys[0];
-        int removedLength = indexedNode.node.keys[0].length();
-        for (int i=0;i<indexedNode.node.size-1;i++) indexedNode.node.keys[i] = indexedNode.node.keys[i+1];
-        indexedNode.node.size--;
-        if (indexedNode.node.size<degree-1) indexedNode.parent.node.children[0] = null;
-        while (!node.isLeaf()) {
-            node.childLengths[0] -= removedLength;
-            node = node.children[0];
+        BtrfsNode currentNode = indexedNode.node;
+        while (!currentNode.isLeaf()) currentNode = currentNode.children[0];
+        Interval removedKey = currentNode.keys[0];
+        int removedLength = currentNode.keys[0].length();
+        for (int i=0;i<currentNode.size-1;i++) currentNode.keys[i] = currentNode.keys[i+1];
+        currentNode.size--;
+        currentNode = indexedNode.node;
+        while (!currentNode.isLeaf()) {
+            currentNode.childLengths[0] -= removedLength;
+            currentNode = currentNode.children[0];
         }
         return removedKey;
     }
