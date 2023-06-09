@@ -574,26 +574,28 @@ public class BtrfsFile {
         if (node.isFull()) System.out.println("error: node already full");
         else if (siblingNode.size-1<degree-1) System.out.println("error: right sibling node boutta be empty");
         else {
+            //interval: parent node -> base node
             for (int i=node.size;i>0;i--) node.keys[i] = node.keys[i-1];
-            for (int i=node.size+1;i>0;i--) {
+            indexedNode.index++;
+            node.keys[0] = parentNode.keys[parentIndex-1];
+            node.size++;
+            parentNode.childLengths[parentIndex] += parentNode.keys[parentIndex-1].length();
+            //if sibling node is not a leaf... (sibling node -> base node)
+            for (int i=node.size;i>0;i--) {
                 node.children[i] = node.children[i-1];
                 node.childLengths[i] = node.childLengths[i-1];
             }
-            node.size++;
-            indexedNode.index++;
-
-            node.keys[0] = parentNode.keys[parentIndex-1];
             node.children[0] = siblingNode.children[siblingNode.size];
             node.childLengths[0] = siblingNode.childLengths[siblingNode.size];
-
+            parentNode.childLengths[parentIndex] += siblingNode.childLengths[siblingNode.size];
+            parentNode.childLengths[parentIndex-1] -= siblingNode.childLengths[siblingNode.size];
+            //interval: sibling node -> parent node
             parentNode.keys[parentIndex-1] = siblingNode.keys[siblingNode.size-1];
-            parentNode.childLengths[parentIndex] += (node.keys[0].length() + node.childLengths[0]);
-
+            parentNode.childLengths[parentIndex-1] -= siblingNode.keys[siblingNode.size-1].length();
             siblingNode.keys[siblingNode.size-1] = null;
             siblingNode.children[siblingNode.size] = null;
             siblingNode.childLengths[siblingNode.size] = 0;
             siblingNode.size--;
-            parentNode.childLengths[parentIndex-1] -= (node.childLengths[0] + parentNode.keys[parentIndex-1].length());
         }
     }
 
