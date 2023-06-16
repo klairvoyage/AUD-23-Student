@@ -1,17 +1,6 @@
-### Übungen zur Vorlesung
-
-# Algorithmen und Datenstrukturen
-
 ### Übungsblatt 1
 
-```
-Sommersemester 2023 - Layout by Patrick Harasser
-Veröffentlicht: 14.04.2023, 14:00 Uhr MESZ
-Letzte Änderung: 17.04.2023, 19:02 Uhr MESZ
-Abgabe: 28.04.2023, 14:00 Uhr MESZ
-```
-
-## Hausübungen
+# Algorithmen und Datenstrukturen
 
 In diesem Bereich finden Sie die erste theoretische Hausübung. Bitte beachten Sie die allgemeinen Hinweise zu den Hausübungen und deren Abgabe im [Moodle-Kurs](https://moodle.informatik.tu-darmstadt.de/course/view.php?id=1399).
 Bitte reichen Sie Ihre Abgabe bis spätestens _Freitag, 28.04.2023, 14:00 Uhr MESZ_ ein. Verspätete Abgaben können _nicht_ berücksichtigt werden.
