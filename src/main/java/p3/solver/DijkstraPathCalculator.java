@@ -3,11 +3,7 @@ package p3.solver;
 import p3.graph.Edge;
 import p3.graph.Graph;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Implementation of Dijkstra's algorithm, a single-source shortest path algorithm.
@@ -64,7 +60,17 @@ public class DijkstraPathCalculator<N> implements PathCalculator<N> {
      */
     @Override
     public List<N> calculatePath(final N start, final N end) {
-        throw new UnsupportedOperationException("Not implemented yet"); // TODO H3 e): remove if implemented
+        // TODO H3 e): remove if implemented //
+        init(start);
+        while (!remainingNodes.isEmpty()) {
+            N current = extractMin();
+            if (current.equals(end)) break;
+            for (Edge<N> edge : graph.getAdjacentEdges(current)) {
+                N adjacent = current.equals(edge.a()) ? edge.b() : edge.a();
+                relax(current, adjacent, edge);
+            }
+        }
+        return reconstructPath(start, end);
     }
 
     /**
@@ -75,7 +81,16 @@ public class DijkstraPathCalculator<N> implements PathCalculator<N> {
      * @param start the start node
      */
     protected void init(N start) {
-        throw new UnsupportedOperationException("Not implemented yet"); // TODO H3 a): remove if implemented
+        // TODO H3 a): remove if implemented
+        distances.clear();
+        predecessors.clear();
+        remainingNodes.clear();
+        for (N node : graph.getNodes()) {
+            if (node.equals(start)) distances.put(node, 0);
+            else distances.put(node, Integer.MAX_VALUE);
+            predecessors.put(node, null);
+            remainingNodes.add(node);
+        }
     }
 
     /**
@@ -85,7 +100,18 @@ public class DijkstraPathCalculator<N> implements PathCalculator<N> {
      * @return the next unprocessed node with minimal weight
      */
     protected N extractMin() {
-        throw new UnsupportedOperationException("Not implemented yet"); // TODO H3 b): remove if implemented
+        // TODO H3 b): remove if implemented
+        N minNode = null;
+        int minDistance = Integer.MAX_VALUE;
+        for (N node : remainingNodes) {
+            int distance = distances.get(node);
+            if (distance<minDistance) {
+                minDistance = distance;
+                minNode = node;
+            }
+        }
+        remainingNodes.remove(minNode);
+        return minNode;
     }
 
     /**
@@ -97,7 +123,13 @@ public class DijkstraPathCalculator<N> implements PathCalculator<N> {
      * @param edge the edge between {@code from} and {@code to}.
      */
     protected void relax(N from, N to, Edge<N> edge) {
-        throw new UnsupportedOperationException("Not implemented yet"); // TODO H3 c): remove if implemented
+        // TODO H3 c): remove if implemented //
+        int weight = edge.weight();
+        int distance = distances.get(from) + weight;
+        if (distance<distances.get(to)) {
+            distances.put(to, distance);
+            predecessors.put(to, from);
+        }
     }
 
     /**
@@ -109,6 +141,13 @@ public class DijkstraPathCalculator<N> implements PathCalculator<N> {
      * @return a list of nodes in the order they need to be traversed to get the shortest path from the start node to the end node.
      */
     protected List<N> reconstructPath(N start, N end) {
-        throw new UnsupportedOperationException("Not implemented yet"); // TODO H3 d): remove if implemented
+        // TODO H3 d): remove if implemented //
+        List<N> path = new ArrayList<>();
+        N current = end;
+        while (current!=null) {
+            path.add(0, current);
+            current = predecessors.get(current);
+        }
+        return path;
     }
 }
