@@ -51,8 +51,8 @@ public interface Edge<N> extends Comparable<Edge<N>> {
      */
     @Override
     default int compareTo(Edge<N> other) {
-        throw new UnsupportedOperationException("Not implemented yet"); // TODO H2 a): remove if implemented
-
+        // TODO H2 a): remove if implemented
+        return Integer.compare(weight(), other.weight());
     }
 
     /**
