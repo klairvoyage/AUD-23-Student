@@ -32,7 +32,9 @@ public class AdjacencyMatrix {
      * @param weight the weight of the edge
      */
     public void addEdge(int a, int b, int weight) {
-        throw new UnsupportedOperationException("Not implemented yet"); // TODO H1 b): remove if implemented
+        // TODO H1 b): remove if implemented
+        matrix[a][b] = weight;
+        matrix[b][a] = weight;
     }
 
     /**
@@ -43,8 +45,8 @@ public class AdjacencyMatrix {
      * @return the weight of the edge between the given indices
      */
     public int getWeight(int a, int b) {
-        throw new UnsupportedOperationException("Not implemented yet"); // TODO H1 b): remove if implemented
-
+        // TODO H1 b): remove if implemented
+        return matrix[a][b];
     }
 
     /**
@@ -54,7 +56,7 @@ public class AdjacencyMatrix {
      * @return an array of the weights of the edges adjacent to the given index
      */
     public int[] getAdjacent(int index) {
-        throw new UnsupportedOperationException("Not implemented yet"); // TODO H1 b): remove if implemented
-
+        // TODO H1 b): remove if implemented
+        return matrix[index];
     }
 }

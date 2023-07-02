@@ -3,6 +3,7 @@ package p3.graph;
 import p3.SetUtils;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -51,7 +52,19 @@ public class AdjacencyGraph<N> implements Graph<N> {
         this.nodes = SetUtils.immutableCopyOf(nodes);
         this.edges = SetUtils.immutableCopyOf(edges);
 
-        throw new UnsupportedOperationException("Not implemented yet"); // TODO H1 c): remove if implemented
+        // TODO H1 c): remove if implemented
+        int index = 0;
+        for (N node : nodes) {
+            nodeIndices.put(node, index);
+            indexNodes.put(index, node);
+            index++;
+        }
+        for (Edge<N> edge : edges) {
+            int a = nodeIndices.get(edge.a());
+            int b = nodeIndices.get(edge.b());
+            int weight = edge.weight();
+            matrix.addEdge(a, b, weight);
+        }
     }
 
     @Override
@@ -66,7 +79,34 @@ public class AdjacencyGraph<N> implements Graph<N> {
 
     @Override
     public Set<Edge<N>> getAdjacentEdges(N node) {
-        throw new UnsupportedOperationException("Not implemented yet"); // TODO H1 c): remove if implemented
+        // TODO H1 c): remove if implemented
+        int index = nodeIndices.get(node);
+        int[] adjacentIndices = matrix.getAdjacent(index);
+        Set<Edge<N>> adjacentEdges = new HashSet<>();
+        for (int adjacentIndex : adjacentIndices) {
+            int weight = matrix.getWeight(index, adjacentIndex);
+            if (weight!=0) {
+                N adjacentNode = indexNodes.get(adjacentIndex);
+                Edge<N> edge = new Edge<>() {
+                    @Override
+                    public N a() {
+                        return node;
+                    }
+
+                    @Override
+                    public N b() {
+                        return adjacentNode;
+                    }
+
+                    @Override
+                    public int weight() {
+                        return weight;
+                    }
+                };
+                adjacentEdges.add(edge);
+            }
+        }
+        return adjacentEdges;
     }
 
     @Override
