@@ -79,10 +79,8 @@ public class AdjacencyGraph<N> implements Graph<N> {
         //creates array with the weights of the edges adjacent to the given node
         int[] weights = matrix.getAdjacent(nodeIndices.get(node));
         for (int i=0;i<weights.length;i++) {
-            int weight = weights[i];
-            if (weight!=0) {
-                //retrieve node based on its index (so edge can be created)
-                N adjacentNode = indexNodes.get(i);
+            if (weights[i]!=0) {
+                N adjacentNode = indexNodes.get(i); int weight = weights[i];
                 Edge<N> edge = new Edge<>() {
                     @Override
                     public N a() {
