@@ -48,12 +48,14 @@ public class BasicGraph<N> implements Graph<N> {
 
         // TODO H1 a): remove if implemented
         backing = new HashMap<>();
+        //iterates over each node which then receives an empty set of edges
         for (N node : nodes) backing.put(node, new HashSet<>());
+        //iterates over each edge which is then added to the set of edges of its two respective nodes
         for (Edge<N> edge : edges) {
-            N nodeA = edge.a();
-            N nodeB = edge.b();
-            backing.get(nodeA).add(edge);
-            backing.get(nodeB).add(edge);
+           N a = edge.a();
+           N b = edge.b();
+           backing.get(a).add(edge);
+           backing.get(b).add(edge);
         }
     }
 
