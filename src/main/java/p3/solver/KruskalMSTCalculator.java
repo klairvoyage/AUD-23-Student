@@ -3,7 +3,10 @@ package p3.solver;
 import p3.graph.Edge;
 import p3.graph.Graph;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Implementation of Kruskal's algorithm, a minimum spanning tree algorithm.
@@ -48,12 +51,10 @@ public class KruskalMSTCalculator<N> implements MSTCalculator<N> {
     public Graph<N> calculateMST() {
         // TODO H2 e): remove if implemented //
         init();
-        List<Edge<N>> edges = new ArrayList<>(graph.getEdges());
-        Collections.sort(edges);
-        for (Edge<N> edge : edges) {
-            if (acceptEdge(edge)) mstEdges.add(edge);
-        }
-        return Graph.of(graph.getNodes(), mstEdges);
+        List<Edge<N>> edges = new ArrayList<>(graph.getEdges()); edges.sort(Edge::compareTo); //sort
+        //iterates over each edge of the graph and add it to the MST if it meets the requirements
+        for (Edge<N> edge : edges) if (acceptEdge(edge)) mstEdges.add(edge);
+        return Graph.of(graph.getNodes(), mstEdges); //creates the MST
     }
 
     /**
@@ -62,7 +63,7 @@ public class KruskalMSTCalculator<N> implements MSTCalculator<N> {
      */
     protected void init() {
         // TODO H2 b): remove if implemented
-        mstEdges.clear(); mstGroups.clear(); //reset
+        mstEdges.clear(); mstGroups.clear();
         //iterates over each node creating a group for each of them
         for (N node : graph.getNodes()) {
             Set<N> group = new HashSet<>(); group.add(node); mstGroups.add(group);
@@ -80,18 +81,14 @@ public class KruskalMSTCalculator<N> implements MSTCalculator<N> {
      */
     protected boolean acceptEdge(Edge<N> edge) {
         // TODO H2 d): remove if implemented //
-        N nodeA = edge.a();
-        N nodeB = edge.b();
-        int aIndex = -1;
-        int bIndex = -1;
-        for (int i=0;i<mstEdges.size();i++) {
+        int groupIndexA = -1; int groupIndexB = -1;
+        for (int i=0;i<mstGroups.size();i++) {
             Set<N> group = mstGroups.get(i);
-            if (group.contains(nodeA)) aIndex = i;
-            if (group.contains(nodeB)) bIndex = i;
-            if (aIndex!=-1 && bIndex==-1) break;
+            //saves the index when both nodes of the edge are in the same group
+            if (group.contains(edge.a())) groupIndexA = i; if (group.contains(edge.b())) groupIndexB = i;
         }
-        if (aIndex == bIndex) return false;
-        else joinGroups(aIndex, bIndex);
+        if (groupIndexA==groupIndexB) return false;
+        else joinGroups(groupIndexA, groupIndexB);
         return true;
     }
 
@@ -107,7 +104,7 @@ public class KruskalMSTCalculator<N> implements MSTCalculator<N> {
         // TODO H2 c): remove if implemented //
         Set<N> a = mstGroups.get(aIndex);
         Set<N> b = mstGroups.get(bIndex);
-        //smaller mstGroup gets moved into the bigger one
+        //smaller group gets moved into the bigger one
         if (a.size()<b.size()) {
             b.addAll(a); mstGroups.remove(aIndex);
         } else {
