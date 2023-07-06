@@ -54,9 +54,11 @@ public class AdjacencyGraph<N> implements Graph<N> {
 
         // TODO H1 c): remove if implemented
         int index = 0;
+        //iterates over each node and assigns it a distinct value
         for (N node : nodes) {
             nodeIndices.put(node, index); indexNodes.put(index, node); index++;
         }
+        //iterates over each edge, pulling the indices of its two nodes & weight to then create the edge in the matrix
         for (Edge<N> edge : edges) matrix.addEdge(nodeIndices.get(edge.a()), nodeIndices.get(edge.b()), edge.weight());
     }
 
@@ -73,13 +75,14 @@ public class AdjacencyGraph<N> implements Graph<N> {
     @Override
     public Set<Edge<N>> getAdjacentEdges(N node) {
         // TODO H1 c): remove if implemented
-        int index = nodeIndices.get(node);
-        int[] adjacentIndices = matrix.getAdjacent(index);
         Set<Edge<N>> adjacentEdges = new HashSet<>();
-        for (int adjacentIndex : adjacentIndices) {
-            int weight = matrix.getWeight(index, adjacentIndex);
+        //creates array with the weights of the edges adjacent to the given node
+        int[] weights = matrix.getAdjacent(nodeIndices.get(node));
+        for (int i=0;i<weights.length;i++) {
+            int weight = weights[i];
             if (weight!=0) {
-                N adjacentNode = indexNodes.get(adjacentIndex);
+                //retrieve node based on its index (so edge can be created)
+                N adjacentNode = indexNodes.get(i);
                 Edge<N> edge = new Edge<>() {
                     @Override
                     public N a() {
@@ -96,6 +99,7 @@ public class AdjacencyGraph<N> implements Graph<N> {
                         return weight;
                     }
                 };
+                //initialized edge is added to the set of adjacent edges
                 adjacentEdges.add(edge);
             }
         }
