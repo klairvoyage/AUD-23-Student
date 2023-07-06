@@ -55,16 +55,9 @@ public class AdjacencyGraph<N> implements Graph<N> {
         // TODO H1 c): remove if implemented
         int index = 0;
         for (N node : nodes) {
-            nodeIndices.put(node, index);
-            indexNodes.put(index, node);
-            index++;
+            nodeIndices.put(node, index); indexNodes.put(index, node); index++;
         }
-        for (Edge<N> edge : edges) {
-            int a = nodeIndices.get(edge.a());
-            int b = nodeIndices.get(edge.b());
-            int weight = edge.weight();
-            matrix.addEdge(a, b, weight);
-        }
+        for (Edge<N> edge : edges) matrix.addEdge(nodeIndices.get(edge.a()), nodeIndices.get(edge.b()), edge.weight());
     }
 
     @Override

@@ -52,10 +52,7 @@ public class BasicGraph<N> implements Graph<N> {
         for (N node : nodes) backing.put(node, new HashSet<>());
         //iterates over each edge which is then added to the set of edges of its two respective nodes
         for (Edge<N> edge : edges) {
-           N a = edge.a();
-           N b = edge.b();
-           backing.get(a).add(edge);
-           backing.get(b).add(edge);
+           backing.get(edge.a()).add(edge); backing.get(edge.b()).add(edge);
         }
     }
 
