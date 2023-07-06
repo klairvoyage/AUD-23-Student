@@ -62,12 +62,10 @@ public class KruskalMSTCalculator<N> implements MSTCalculator<N> {
      */
     protected void init() {
         // TODO H2 b): remove if implemented
-        mstEdges.clear();
-        mstGroups.clear();
+        mstEdges.clear(); mstGroups.clear(); //reset
+        //iterates over each node creating a group for each of them
         for (N node : graph.getNodes()) {
-            Set<N> group = new HashSet<>();
-            group.add(node);
-            mstGroups.add(group);
+            Set<N> group = new HashSet<>(); group.add(node); mstGroups.add(group);
         }
     }
 
@@ -107,14 +105,13 @@ public class KruskalMSTCalculator<N> implements MSTCalculator<N> {
      */
     protected void joinGroups(int aIndex, int bIndex) {
         // TODO H2 c): remove if implemented //
-        Set<N> groupA = mstGroups.get(aIndex);
-        Set<N> groupB = mstGroups.get(bIndex);
-        if (groupA.size()<groupB.size()) {
-            groupA.addAll(groupB);
-            mstGroups.remove(bIndex);
+        Set<N> a = mstGroups.get(aIndex);
+        Set<N> b = mstGroups.get(bIndex);
+        //smaller mstGroup gets moved into the bigger one
+        if (a.size()<b.size()) {
+            b.addAll(a); mstGroups.remove(aIndex);
         } else {
-            groupB.addAll(groupA);
-            mstGroups.remove(aIndex);
+            a.addAll(b); mstGroups.remove(bIndex);
         }
     }
 }
