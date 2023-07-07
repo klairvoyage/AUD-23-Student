@@ -68,11 +68,11 @@ public class DijkstraPathCalculator<N> implements PathCalculator<N> {
         // TODO H3 e): remove if implemented //
         init(start);
         while (!remainingNodes.isEmpty()) {
-            N current = extractMin();
-            if (current.equals(end)) break;
-            for (Edge<N> edge : graph.getAdjacentEdges(current)) {
-                N adjacent = current.equals(edge.a()) ? edge.b() : edge.a();
-                relax(current, adjacent, edge);
+            N extractedNode = extractMin();
+            if (extractedNode.equals(end)) break;
+            for (Edge<N> edge : graph.getAdjacentEdges(extractedNode)) {
+                N adjacentNode = (extractedNode.equals(edge.a())) ? edge.b() : edge.a();
+                relax(extractedNode, adjacentNode, edge);
             }
         }
         return reconstructPath(start, end);
@@ -87,9 +87,7 @@ public class DijkstraPathCalculator<N> implements PathCalculator<N> {
      */
     protected void init(N start) {
         // TODO H3 a): remove if implemented
-        distances.clear();
-        predecessors.clear();
-        remainingNodes.clear();
+        distances.clear(); predecessors.clear(); remainingNodes.clear();
         for (N node : graph.getNodes()) {
             if (node.equals(start)) distances.put(node, 0);
             else distances.put(node, Integer.MAX_VALUE);
@@ -106,17 +104,14 @@ public class DijkstraPathCalculator<N> implements PathCalculator<N> {
      */
     protected N extractMin() {
         // TODO H3 b): remove if implemented
-        N minNode = null;
-        int minDistance = Integer.MAX_VALUE;
+        int minDistance = Integer.MAX_VALUE; N nextNode = null;
         for (N node : remainingNodes) {
             int distance = distances.get(node);
             if (distance<minDistance) {
-                minDistance = distance;
-                minNode = node;
+                minDistance = distance; nextNode = node;
             }
-        }
-        remainingNodes.remove(minNode);
-        return minNode;
+        } remainingNodes.remove(nextNode);
+        return nextNode;
     }
 
     /**
@@ -129,11 +124,9 @@ public class DijkstraPathCalculator<N> implements PathCalculator<N> {
      */
     protected void relax(N from, N to, Edge<N> edge) {
         // TODO H3 c): remove if implemented //
-        int weight = edge.weight();
-        int distance = distances.get(from) + weight;
-        if (distance<distances.get(to)) {
-            distances.put(to, distance);
-            predecessors.put(to, from);
+        int newDistance = distances.get(from) + edge.weight();
+        if (newDistance<distances.get(to)) {
+            distances.put(to, newDistance); predecessors.put(to, from);
         }
     }
 
@@ -147,11 +140,9 @@ public class DijkstraPathCalculator<N> implements PathCalculator<N> {
      */
     protected List<N> reconstructPath(N start, N end) {
         // TODO H3 d): remove if implemented //
-        List<N> path = new ArrayList<>();
-        N current = end;
-        while (current!=null) {
-            path.add(0, current);
-            current = predecessors.get(current);
+        List<N> path = new ArrayList<>(); N currentNode = end;
+        while (currentNode!=predecessors.get(start)) {
+            path.add(0, currentNode); currentNode = predecessors.get(currentNode);
         }
         return path;
     }
