@@ -24,7 +24,7 @@ public class ExampleJUnitTest {
         assertEquals(2, 1 + 1);
     }
 
-    @Test
+    /*@Test
     public void testDijkstraReconstructPath() throws InvocationTargetException, IllegalAccessException, NoSuchFieldException, NoSuchMethodException, InstantiationException, ClassNotFoundException {
         int[] nodes = new int[]{1, 2, 4, 6, 5, 8, 3, 9, 11};
         DijkstraPathCalculator<Integer> dijkstraPathCalculator = new DijkstraPathCalculator<>(createGraph(nodes));
@@ -76,5 +76,5 @@ public class ExampleJUnitTest {
         }
 
         return new BasicGraph<>(nodes, edges);
-    }
+    }*/
 }

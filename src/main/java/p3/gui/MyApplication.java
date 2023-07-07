@@ -49,7 +49,7 @@ public class MyApplication extends Application {
             "C", new Location(-30, -20),
             "D", new Location(30, -10),
             "E", new Location(45, -5),
-            "F", new Location(50, 10)), "A", "F");
+            "F", new Location(50, 10)), "A", "F"); //change this for test purposes
 
         return scene;
     }
