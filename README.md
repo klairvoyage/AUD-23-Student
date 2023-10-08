@@ -1,6 +1,12 @@
 # AUD-23-Student-Solutions
 
-This repository is a collection of homework solutions from SoSe 23. The projects are organized in a single repository but maintain their individual Git histories.
+This repository is a collection of homework solutions from SoSe 23.
+- Fibonacci: iteration vs recursion (2/2p)
+- sorting algorithms (27/30p)
+- Btrfs operations (11,5/12/30p)
+- Kruskal & Dijkstra (30/30p)
+
+The projects are organized in a single repository but maintain their individual Git histories.
 
 ## Running Public Tests
 
