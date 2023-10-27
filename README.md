@@ -17,7 +17,7 @@ ganz unten. Ziel des Spiels ist es, alle Scheiben vom Ausgangsstab auf einen and
 
 Als Beispiel finden Sie in der Abbildung unten zwei erlaubte (links) und zwei regelwidrige (rechts) Zustände, bei n = 4 Scheiben:
 
-![zwei erlaubte (links) und zwei regelwidrige (rechts) Zustände bei n = 4 Scheiben](./img/image1.png)
+![zwei erlaubte (links) und zwei regelwidrige (rechts) Zustände bei n = 4 Scheiben](src/main/resources/image1.png)
 
 (a) Geben Sie Pseudocode für einen rekursiven Algorithmus Hanoi(n,i,j) an. Der Algorithmus soll das Spiel mit Ausgangsstab i und Zielstab j lösen,
 indem er ein Array mit den ausgeführten Spielzügen ausgibt. Sie können hierbei einen Spielzug vom Stab k auf Stabldurch das Tupel(k,l) angeben und
